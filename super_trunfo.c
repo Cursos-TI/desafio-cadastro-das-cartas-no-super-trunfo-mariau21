@@ -1,78 +1,86 @@
 #include <stdio.h>
+#include <string.h>
 
-int main(){
+#define NUM_CARTAS 2
+#define BILHAO 1000000000.0f   // 1 bilhão em reais
 
-char estado;
-char codigo[50];
-char nome [50];
-int populacao;
-float area;
-float pib;
-int pontos;
-char unidade;
-char code[50];
-char cidade[50];
-int pessoas;
-float tamanho;
-float capital;
-int turisticos;
+typedef struct {
+    /* Dados digitados pelo usuário */
+    char  estado;                  // 'A'-'H'
+    char  codigo[4];               // “A01” … “H04”
+    char  nome[100];               // Nome da cidade
+    int   populacao;               // Habitantes
+    float area;                    // km²
+    float pibBilhoes;              // PIB (em bilhões de reais)
+    int   pontosTuristicos;
 
+    /* Dados calculados */
+    float densidade;               // hab/km²
+    float pibPerCapita;            // reais
+} Carta;
 
-printf("Digite o estado: \n");
-scanf("%c", &estado);
+int main(void) {
+    Carta cartas[NUM_CARTAS];
 
-printf("Digite o codigo: \n");
-scanf("%s", &codigo);
+    /* ---------- Leitura ---------- */
+    for (int i = 0; i < NUM_CARTAS; ++i) {
+        printf("=== Carta %d ===\n", i + 1);
 
-printf("Digite o nome da cidade: \n");
-scanf("%s", &nome);
+        printf("Estado (A-H): ");
+        scanf(" %c", &cartas[i].estado);
 
-printf("Digite a população: \n");
-scanf("%d", &populacao);
+        printf("Código (ex.: A01): ");
+        scanf(" %3s", cartas[i].codigo);
 
-printf("Digite a área: \n");
-scanf("%f", &area);
+        getchar();                                    // limpa '\n'
 
-printf("Digite o PIB: \n");
-scanf("%f", &pib);
+        printf("Nome da Cidade: ");
+        fgets(cartas[i].nome, sizeof(cartas[i].nome), stdin);
+        cartas[i].nome[strcspn(cartas[i].nome, "\n")] = '\0';
 
-printf("Digite o numero de pontos turísticos: \n");
-scanf("%d", &pontos);
+        printf("População: ");
+        scanf("%d", &cartas[i].populacao);
 
-printf("Digite o estado: \n");
-scanf("%c", &unidade);
+        printf("Área (km²): ");
+        scanf("%f", &cartas[i].area);
 
-printf("Digite o codigo: \n");
-scanf("%s", &code);
-    
-printf("Digite o nome da cidade: \n");
-scanf("%s", &cidade);
+        printf("PIB (em bilhões de R$): ");
+        scanf("%f", &cartas[i].pibBilhoes);
 
-printf("Digite a população: \n");
-scanf("%d", &pessoas);
+        printf("Número de Pontos Turísticos: ");
+        scanf("%d", &cartas[i].pontosTuristicos);
 
-printf("Digite a área: \n");
-scanf("%f", &tamanho);
+        getchar();                                    // limpa '\n'
 
-printf("Digite o PIB: \n");
-scanf("%f", &capital);
+        /* ---------- Cálculos ---------- */
+        if (cartas[i].area > 0)
+            cartas[i].densidade = cartas[i].populacao / cartas[i].area;
+        else
+            cartas[i].densidade = 0.0f;
 
-printf("Digite o numero de pontos turísticos: \n");
-scanf("%d", &turisticos);
+        /* converte PIB de “bilhões” → reais antes de dividir */
+        float pibReais = cartas[i].pibBilhoes * BILHAO;
+        if (cartas[i].populacao > 0)
+            cartas[i].pibPerCapita = pibReais / cartas[i].populacao;
+        else
+            cartas[i].pibPerCapita = 0.0f;
 
+        putchar('\n');
+    }
 
-printf("Carta 1 \n");
-printf("Estado: %c - Codigo: %s \n", estado, codigo);
-printf("Nome da cidade: %s - População: %d \n", nome, populacao);
-printf("Área da cidade: %f - PIB da cidade: %f \n", area, pib);
-printf("Pontos turísticos: %d \n", pontos);
+    /* ---------- Exibição ---------- */
+    for (int i = 0; i < NUM_CARTAS; ++i) {
+        printf("Carta %d:\n", i + 1);
+        printf("Estado: %c\n", cartas[i].estado);
+        printf("Código: %s\n", cartas[i].codigo);
+        printf("Nome da Cidade: %s\n", cartas[i].nome);
+        printf("População: %d\n", cartas[i].populacao);
+        printf("Área: %.2f km²\n", cartas[i].area);
+        printf("PIB: %.2f bilhões de reais\n", cartas[i].pibBilhoes);
+        printf("Número de Pontos Turísticos: %d\n", cartas[i].pontosTuristicos);
+        printf("Densidade Populacional: %.2f hab/km²\n", cartas[i].densidade);
+        printf("PIB per Capita: %.2f reais\n\n", cartas[i].pibPerCapita);
+    }
 
-printf("Carta 2 \n");
-printf("Estado: %c - Codigo: %s \n", unidade, code);
-printf("Nome da cidade: %s - População: %d \n", cidade, pessoas);
-printf("Área da cidade: %f - PIB da cidade: %f \n", tamanho, capital);
-printf("Pontos turísticos: %d", turisticos);
-
-return 0;
-
+    return 0;
 }
